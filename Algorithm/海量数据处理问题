@@ -1,0 +1,63 @@
+#海量数据处理算法总结  
+## topK问题   
+快速找出海量数据的topK, 最简单的方法为利用堆heap实现,比如找出top10大的数据，建立一个大小为10的最小堆, 如果当前元素大于堆顶元素则排除堆顶元素加入新元素。
+``` c++
+#include <iostream>                                                             
+#include <algorithm>                                                            
+#define K 10                                                                    
+                                                                                
+using namespace std;                                                            
+                                                                                
+int heap[K+1];                                                                  
+                                                                                
+void adjustHeap(int pos){                                                       
+    int left = pos*2;                                                           
+    int right = pos*2+1;                                                        
+    int child;                                                                  
+    if(left > K)                                                                
+        return;                                                                 
+    if(right > K)                                                               
+        child = left;                                                           
+    else                                                                        
+        child = heap[left] < heap[right] ? left :  right;                       
+    if (heap[child] < heap[pos]){                                               
+        int tmp = heap[pos];                                                    
+        heap[pos] = heap[child];                                                
+        heap[child] = tmp;                                                      
+        adjustHeap(child);   // adjust the child                                
+    }                                                                           
+                                                                                
+}                                                                               
+                                                                                
+void creatHeap(){                                                               
+    for(int pos = K/2 ; pos > 1;  pos--){                                       
+        adjustHeap(pos);                                                        
+    }                                                                           
+                                                                                
+}                                                                               
+int main()                                                                      
+{                                                                               
+    int array[] = {34,55,12,23,78,20,22,90,46,35,3,89,10,25,98,100,234,56};     
+    int n = sizeof(array)/sizeof(int);                                          
+    cout << "array size = "<< n <<endl;                                         
+    for(int i =0; i < K; i++){                                                  
+        heap[i+1] = array[i];                                                   
+    }                                                                           
+                                                                                
+    creatHeap();                                                                
+                                       
+    for(int i = K+1; i < n  ; i++ ){ 
+         if(array[i] > heap[1]){      
+             heap[1] = array[i];      
+             adjustHeap(1);           
+         }                            
+                                      
+    }                                
+    for(int i=0; i<K; i++)            
+        cout << heap[i] << " ";       
+                                      
+    cout <<endl;                      
+ }                                                                                                            
+
+```
+
