@@ -19,13 +19,13 @@
 
 *  如何实现动态绑定   友元函数
 
-* vector中size()和capacity()的区别
+* vector中size()和capacity()的区别  
 capacity的意思是容量，此方法返回的是该vector对象在重新分配内存之前最多能容纳多少个元素。
 size的意思是大小，此方法是返回该vector对象当前有多少个元素。
 
 * mapset vector的原理  stl有哪些容器 对比vector和set
 
-* 四种类型转换
+* 四种类型转换   
 C++引入了4种类型转化操作符（cast operator）：static_cast，const_cast，dynamic_cast和reinterpret_cast  
 static_cast：static_cast基本上拥有与C旧式转型相同的威力和意义，以及相同的限制。但是，该类型转换操作符不能移除常量性，因为有一个专门的操作符用来移除常量性。  
 const_cast：用来改变表达式中的常量性（constness）或者易变形（volatileness），只能用于此功能。  
