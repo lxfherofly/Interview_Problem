@@ -7,8 +7,8 @@
 
 * explicitvolatileextern关键字  extern “C”的作用   宏定义和const的区别
 
-* C++程序内存布局  
-
+* C++程序内存布局    
+见C/C++内存管理.md
 * new和mallocdelete和free的区别  delete和delete[]  内存池
 
 * 指针和引用的区别
