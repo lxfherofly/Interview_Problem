@@ -10,7 +10,7 @@
 * C++程序内存布局    
 **见C/C++内存管理详解.md**  
 
-* new和malloc delete和free的区别  delete和delete[]  内存池
+* new和malloc delete和free的区别  delete和delete[]  内存池   
 1.`malloc`和`free`是C的标准库函数，而`new`和`delete`为C++的操作符    
 2.`malloc`和`free`只是动态的开辟一块内存,并没有初始化, 而对一个对象来说, `new`和`delete`会调用构造和析构函数  
 3.`delete`与`new`对应, `delete[]`与`new[]`相对应   
