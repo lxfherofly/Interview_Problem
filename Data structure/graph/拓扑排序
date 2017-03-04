@@ -1,0 +1,97 @@
+# 拓扑排序
+
+## 什么是拓扑排序
+拓扑排序是指将一个有向无环图(Directed Acyclic Graph简称DAG)进行排序进而得到一个有序的线性序列。  
+
+例如，一个项目包括A、B、C、D四个子部分来完成，并且A依赖于B和D，C依赖于D。现在要制定一个计划，写出A、B、C、D的执行顺序。这时，就可以利用到拓扑排序，它就是用来确定事物发生的顺序的。
+
+在拓扑排序中，如果存在一条从顶点A到顶点B的路径，那么在排序结果中B出现在A的后面。
+
+## 拓扑排序算法
+
+**1.** 构造一个队列Q(queue) 和 拓扑排序的结果队列T(topological)；   
+**2.** 把所有没有依赖顶点的节点放入Q；    
+**3.** 当Q还有顶点的时候，执行下面步骤：    
+**3.1** 从Q中取出一个顶点n(将n从Q中删掉)，并放入T(将n加入到结果集中)；   
+**3.2** 对n每一个邻接点m(n是起点，m是终点)；   
+**3.2.1** 去掉边<n,m>;   
+**3.2.2** 如果m没有依赖顶点，则把m放入Q;    
+*注：顶点A没有依赖顶点，是指不存在以A为终点的边。*        
+
+对于如下图，拓扑排序步骤(图来自[skywang12345的博客](http://www.cnblogs.com/skywang12345/p/3711493.html))
+
+![](https://github.com/wangkuiwu/datastructs_and_algorithm/blob/master/pictures/graph/topsort/01.jpg?raw=true&_=3711493)
+
+![](https://github.com/wangkuiwu/datastructs_and_algorithm/blob/master/pictures/graph/topsort/02.jpg?raw=true&_=3711493)
+
+(注：上图第3步结果有误，应该为B->C->A->D->E->F->G, 估计作者画错了)
+
+C++代码
+
+```c++
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+int main()
+{
+	char VNode[] = { 'A', 'B', 'C', 'D' , 'E', 'F', 'G'};
+	int num = sizeof(VNode) / sizeof(char);
+	cout << "total node num = "<< num << endl;
+	int Matrix[7][7] = { 
+	//   A,B,C,D,E,F,G
+		{0,0,0,0,0,0,1},
+		{1,0,0,1,0,0,0},
+		{0,0,0,0,0,1,1},
+		{0,0,0,0,1,1,0},
+		{0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0}
+	};
+
+	vector<int> sortArray;  //排序结果
+	vector<bool> flagArray(num,false); //是否被选入排序结果中
+	queue<int> nodeQueue;
+	vector<int> ins(num, 0);  //每个点的入度
+	for (int i = 0; i < num; i++){
+		for (int j = 0; j < num; j++){
+			ins[i] += Matrix[j][i];
+		}
+		if (ins[i] == 0){
+			//cout << "vnode  " << VNode[i] << " ins = 0" << endl;
+			nodeQueue.push(i);
+			flagArray[i] = true;
+		}
+	}
+	
+	while (!nodeQueue.empty()){
+		int node = nodeQueue.front();   //取队列的最前元素
+		//cout << VNode[node] << endl;
+		nodeQueue.pop();
+		sortArray.push_back(node);
+		
+		for (int i = 0; i < num; i++){
+			if (!flagArray[i]){ //如果之前已经入度为0了， 表明已经进过队列了，不必再考虑
+				if (Matrix[node][i])  //将node的下一步可以到达的点的入度减1
+					ins[i]--;
+				if (ins[i] == 0){
+					nodeQueue.push(i);
+					flagArray[i] = true;
+				}
+					
+				
+			}
+			
+		}
+	}
+	
+	cout << "------------ result ------------------ " << endl;
+	for (auto i : sortArray){
+		cout << VNode[i] << endl;
+	}
+
+
+}
+
+```
