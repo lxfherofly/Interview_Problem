@@ -18,7 +18,7 @@ b.将v加入集合Vnew中，将<u, v>边加入集合Enew中；
 
 考虑下图中的图结构(图来自于[华山大师兄的博客](http://www.cnblogs.com/biyeymyhjob/archive/2012/07/30/2615542.html))
 
-![](./img/Prim.png)
+![](./img/Prim.PNG)
 
 上图可以清晰的描述出Prim算法的过程
 
