@@ -51,13 +51,14 @@ int main(void){
 	
 	const int n = sizeof(VNode) / sizeof(char);
 	int Matrix[n][n] = {
-	  // A,B,C,D,E,F,G
+	        // A,B,C,D,E,F,G
 		{ MAX, 7, MAX, 5, MAX, MAX, MAX },
 		{ 7, MAX, 8, 9, 7, MAX, MAX },
 		{ MAX, 8, MAX, MAX, 5, MAX, MAX },
 		{ 5, 9, MAX, MAX, 15, 6, MAX },
 		{ MAX, 7, 5, 15, MAX, 8, 9 },
 		{ MAX, MAX, MAX, 6, 8, MAX, 11 },
+		{ MAX, MAX, MAX, MAX, 9, 11, MAX }
 	};  // http://www.cnblogs.com/biyeymyhjob/archive/2012/07/30/2615542.html 
 	
 	vector<bool> flagArray(n, false);
