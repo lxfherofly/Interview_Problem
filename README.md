@@ -11,4 +11,4 @@
 * 机器学习算法
 
 ## 备注:   
-因为有部分内容是有数学公式的，但是github上没有添加mathjax的解析，所以为了在浏览器中正常显示数学公式，Chrome浏览器安装**Github With MathJax**
+因为有部分内容是有数学公式的，但是github上没有添加mathjax的解析，所以为了在浏览器中正常显示数学公式，Chrome浏览器安装**Github With MathJax** 插件即可
