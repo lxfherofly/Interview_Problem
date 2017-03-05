@@ -3,8 +3,9 @@
 
 ## Content
 * C++
-* OS
+* 操作系统
 * Algorithm
-* Computer network
+* 计算机网络
 * Linux programming
 * Data structure
+* 机器学习算法
