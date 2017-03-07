@@ -16,9 +16,10 @@ void quicksort(int a[], int l, int r)
 				i++;
 			a[j] = a[i];
 	        a[i] = x;
-	        quicksort(a, l, i - 1);
-	        quicksort(a, i + 1, r);
+	       
 		}
+		quicksort(a, l, i - 1);
+	        quicksort(a, i + 1, r);
 	}
 return;
 }
