@@ -1,0 +1,164 @@
+#腾讯测试工程师面试        
+时间：3.10 杨维科       
+
+## 题1： 利用数组实现一个循环队列，实现插入 弹出等操作
+``` c++
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<string>
+
+using namespace std;
+#define MAXSIZE 100
+template <class T>
+
+class myqueue{
+private:
+	int front;
+	int rear;
+	unsigned int m_size;
+	T* data;
+public:
+	int count = 0;
+	myqueue(unsigned size) :m_size(size), front(0), rear(0){
+		data = new T(size);
+	}
+	~myqueue(){
+		delete[] data;
+	}
+
+
+	bool isEmpty(){
+		//if (front == rear)return true;
+		if (count == 0)return true;
+		else return false;
+	}
+	bool isFull(){
+		if ((!isEmpty())&&(rear ) % m_size == front){
+			return true;
+		}
+		else return false;
+	}
+
+
+	void insert(T val){
+		if (isFull()){
+			cout << "insertion fail,queue full"<< endl;
+			return;
+		}
+		data[rear] = val;
+		rear = (rear + 1)%m_size;
+		count++;
+	}
+
+	T pop()throw (bad_exception){
+		if (isEmpty()){
+			cout << "pop fail,queue empty" << endl;
+			throw bad_exception();
+		}
+		T res = data[front];
+		front = (front + 1) % m_size;
+		count--;
+		return res;
+	}
+};
+int main(){
+	myqueue<int> test(5);
+	test.insert(1);
+	test.insert(2);
+	test.insert(3);
+	test.insert(4);
+	test.insert(5);
+	test.insert(6);
+	test.pop();
+	test.pop();
+	test.pop();
+	test.pop();
+	test.pop();
+	test.pop();
+	return 0;
+}
+```
+##题2 leetcode113. Path Sum II
+``` c++
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<string>
+
+using namespace std;
+struct treenode{
+	int val;
+	treenode *left;
+	treenode *right;
+	treenode(int x) :val(x), left(NULL), right(NULL){}
+};
+
+treenode* creattree(int* a,int index,int size){
+	
+	if (index >= size){
+		return NULL;
+	}
+	//cout << a[index] << endl;
+	if (a[index] == -1){ return NULL; }
+	treenode* root= new treenode(a[index]);
+	treenode* left = creattree(a, 2 * index + 1, size);
+	treenode* right = creattree(a, 2 * index + 2, size);
+	root->left = left;
+	root->right = right;
+	return root;
+}
+
+void find(treenode * root, int sum, vector<int>& curPath, vector<vector<int>> & res){
+	if (root == nullptr)
+		return;
+	if (root->left){
+		curPath.push_back(root->left->val);
+		find(root->left, sum - root->val, curPath, res);
+		curPath.pop_back();
+	}
+	if (root->right){
+		curPath.push_back(root->right->val);
+		find(root->right, sum - root->val, curPath, res);
+		curPath.pop_back();
+	}
+	if (root->left == NULL && root->right == NULL  && sum == root->val){
+		res.push_back(curPath);
+	}
+	return;
+}
+void printtree(treenode* root){
+	if (root != NULL){
+		cout << root->val << " ";
+		printtree(root->left);
+		printtree(root->right);
+	}
+}
+vector<vector<int>> pathSum(treenode* root, int sum){
+	vector<vector<int>> res;
+	if (root == NULL){
+		return res;
+	}
+	vector<int> curPath;
+	curPath.push_back(root->val);
+	find(root, sum, curPath, res);
+	return res;
+}
+
+int main(){
+	int a[] = {5,4,8,11,-1,13,4,7,2,-1,-1,-1,-1,5,1};
+	int size = 15;
+	treenode* root = creattree(a,0,15);
+	//printtree(root);
+	vector<vector<int>> result = pathSum(root,22);
+	cout << endl;
+	for (vector<int> v : result)
+	{
+		for (int i : v)
+			cout << i << " ";
+		cout << endl;
+	}
+	return 0;
+}
+
+```
