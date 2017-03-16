@@ -33,24 +33,28 @@ int select(int maxfdp1,fd_set *readset,fd_set *writeset,fd_set *exceptset,const 
 因为文件描述符是从0开始的。
 
 （2）中间的三个参数readset、writeset和exceptset指定我们要让内核测试读、写和异常条件的描述字。如果对某一个的条件不感兴趣，就可以把它设为空指针。struct fd_set可以理解为一个集合，这个集合中存放的是文件描述符，可通过以下四个宏进行设置：
+``` c
 
-          void FD_ZERO(fd_set *fdset);           //清空集合
+void FD_ZERO(fd_set *fdset);           //清空集合
 
-          void FD_SET(int fd, fd_set *fdset);   //将一个给定的文件描述符加入集合之中
+void FD_SET(int fd, fd_set *fdset);   //将一个给定的文件描述符加入集合之中
 
-          void FD_CLR(int fd, fd_set *fdset);   //将一个给定的文件描述符从集合中删除
+void FD_CLR(int fd, fd_set *fdset);   //将一个给定的文件描述符从集合中删除
 
-          int FD_ISSET(int fd, fd_set *fdset);   // 检查集合中指定的文件描述符是否可以读写 
+int FD_ISSET(int fd, fd_set *fdset);   // 检查集合中指定的文件描述符是否可以读写 
+``` 
 
 （3）timeout告知内核等待所指定描述字中的任何一个就绪可花多少时间。其timeval结构用于指定这段时间的秒数和微秒数。
 
-         struct timeval{
+``` c 
+struct timeval{
 
-                   long tv_sec;   //seconds
+    long tv_sec;   //seconds
 
-                   long tv_usec;  //microseconds
+    long tv_usec;  //microseconds
 
-       };
+};
+``` 
 
 这个参数有三种可能：
 
@@ -61,7 +65,7 @@ int select(int maxfdp1,fd_set *readset,fd_set *writeset,fd_set *exceptset,const 
 （3）根本不等待：检查描述字后立即返回，这称为轮询。为此，该参数必须指向一个timeval结构，而且其中的定时器值必须为0。
 
  原理图：
-
+![](http://images2015.cnblogs.com/blog/305504/201509/305504-20150918012828961-1176245587.png)
 
 
 3、测试程序
@@ -316,82 +320,88 @@ err:
 #define IPADDRESS "127.0.0.1"
 #define SERV_PORT 8787
 
-#define max(a,b) (a > b) ? a : b
+#define max(a, b) (a > b) ? a : b
 
-static void handle_recv_msg(int sockfd, char *buf) 
+static void handle_recv_msg(int sockfd, char *buf)
 {
-printf("client recv msg is:%s\n", buf);
-sleep(5);
-write(sockfd, buf, strlen(buf) +1);
+    printf("client recv msg is:%s\n", buf);
+    sleep(5);
+    write(sockfd, buf, strlen(buf) + 1);
 }
 
 static void handle_connection(int sockfd)
 {
-char sendline[MAXLINE],recvline[MAXLINE];
-int maxfdp,stdineof;
-fd_set readfds;
-int n;
-struct timeval tv;
-int retval = 0;
+    char sendline[MAXLINE], recvline[MAXLINE];
+    int maxfdp, stdineof;
+    fd_set readfds;
+    int n;
+    struct timeval tv;
+    int retval = 0;
 
-while (1) {
+    while (1)
+    {
 
-FD_ZERO(&readfds);
-FD_SET(sockfd,&readfds);
-maxfdp = sockfd;
+        FD_ZERO(&readfds);
+        FD_SET(sockfd, &readfds);
+        maxfdp = sockfd;
 
-tv.tv_sec = 5;
-tv.tv_usec = 0;
+        tv.tv_sec = 5;
+        tv.tv_usec = 0;
 
-retval = select(maxfdp+1,&readfds,NULL,NULL,&tv);
+        retval = select(maxfdp + 1, &readfds, NULL, NULL, &tv);
 
-if (retval == -1) {
-return ;
+        if (retval == -1)
+        {
+            return;
+        }
+
+        if (retval == 0)
+        {
+            printf("client timeout.\n");
+            continue;
+        }
+
+        if (FD_ISSET(sockfd, &readfds))
+        {
+            n = read(sockfd, recvline, MAXLINE);
+            if (n <= 0)
+            {
+                fprintf(stderr, "client: server is closed.\n");
+                close(sockfd);
+                FD_CLR(sockfd, &readfds);
+                return;
+            }
+
+            handle_recv_msg(sockfd, recvline);
+        }
+    }
 }
 
-if (retval == 0) {
-printf("client timeout.\n");
-continue;
-}
-
-if (FD_ISSET(sockfd, &readfds)) {
-n = read(sockfd,recvline,MAXLINE);
-if (n <= 0) {
-fprintf(stderr,"client: server is closed.\n");
-close(sockfd);
-FD_CLR(sockfd,&readfds);
-return;
-}
-
-handle_recv_msg(sockfd, recvline);
-}
-}
-}
-
-int main(int argc,char *argv[])
+int main(int argc, char *argv[])
 {
-int sockfd;
-struct sockaddr_in servaddr;
+    int sockfd;
+    struct sockaddr_in servaddr;
 
-sockfd = socket(AF_INET,SOCK_STREAM,0);
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-bzero(&servaddr,sizeof(servaddr));
-servaddr.sin_family = AF_INET;
-servaddr.sin_port = htons(SERV_PORT);
-inet_pton(AF_INET,IPADDRESS,&servaddr.sin_addr);
+    bzero(&servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(SERV_PORT);
+    inet_pton(AF_INET, IPADDRESS, &servaddr.sin_addr);
 
-int retval = 0;
-retval = connect(sockfd,(struct sockaddr*)&servaddr,sizeof(servaddr));
-if (retval < 0) {
-fprintf(stderr, "connect fail,error:%s\n", strerror(errno));
-return -1;
-}
+    int retval = 0;
+    retval = connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+    if (retval < 0)
+    {
+        fprintf(stderr, "connect fail,error:%s\n", strerror(errno));
+        return -1;
+    }
 
-printf("client send to server .\n");
-write(sockfd, "hello server", 32);
+    printf("client send to server .\n");
+    write(sockfd, "hello server", 32);
 
-handle_connection(sockfd);
+    handle_connection(sockfd);
 
-return 0;
+    return 0;
 }
 ```
