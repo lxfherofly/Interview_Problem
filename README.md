@@ -1,8 +1,14 @@
-# Interview_Problem
-面试问题总结 ---  上海交大微电子贺老师实验室   ^-^
+# Interview Problem
+面试问题总结 ---  上海交大微电子贺老师实验室   ^-^
+
+方便以后学弟学妹们以后找软件互联网方面的工作
 
 欢迎大家积极贡献
 
+目前维护者：
+* Will Wu
+* lxf
+* Vicco Yang
 ## Content
 * C++
 * 操作系统
