@@ -63,3 +63,62 @@ TCP引入了一种叫Fast Retransmit 的算法，不以时间驱动，而以数�
 ![](http://coolshell.cn//wp-content/uploads/2014/05/FASTIncast021.png)
 
 Fast Retransmit只解决了一个问题，就是timeout的问题，它依然面临一个艰难的选择，就是，是重传之前的一个还是重传所有的问题。对于上面的示例来说，是重传#2呢还是重传#2，#3，#4，#5呢？因为发送端并不清楚这连续的3个ack(2)是谁传回来的？也许发送端发了20份数据，是#6，#10，#20传来的呢。这样，发送端很有可能要重传从2到20的这堆数据（这就是某些TCP的实际的实现）。可见，这是一把双刃剑。
+
+## SACK 方法
+
+另外一种更好的方式叫：Selective Acknowledgment (SACK)（参看RFC 2018），这种方式需要在TCP头里加一个SACK的东西，ACK还是Fast Retransmit的ACK，SACK则是汇报收到的数据碎版。参看下图：
+![](http://coolshell.cn//wp-content/uploads/2014/05/tcp_sack_example-900x507.jpg)
+
+这样，在发送端就可以根据回传的SACK来知道哪些数据到了，哪些没有到。于是就优化了Fast Retransmit的算法。当然，这个协议需要两边都支持。在 Linux下，可以通过tcp_sack参数打开这个功能（Linux 2.4后默认打开）。
+
+## Duplicate SACK – 重复收到数据的问题
+
+Duplicate SACK又称D-SACK，其主要使用了SACK来告诉发送方有哪些数据被重复接收了。RFC-2883 里有详细描述和示例。下面举几个例子（来源于RFC-2883）
+
+D-SACK使用了SACK的第一个段来做标志，
+
+* 如果SACK的第一个段的范围被ACK所覆盖，那么就是D-SACK
+* 如果SACK的第一个段的范围被SACK的第二个段覆盖，那么就是D-SAC
+
+示例一：ACK丢包
+
+下面的示例中，丢了两个ACK，所以，发送端重传了第一个数据包（3000-3499），于是接收端发现重复收到，于是回了一个SACK=3000-3500，因为ACK都到了4000意味着收到了4000之前的所有数据，所以这个SACK就是D-SACK——旨在告诉发送端我收到了重复的数据，而且我们的发送端还知道，数据包没有丢，丢的是ACK包。
+
+```
+Transmitted  Received    ACK Sent
+Segment      Segment     (Including SACK Blocks)
+ 
+3000-3499    3000-3499   3500 (ACK dropped)
+3500-3999    3500-3999   4000 (ACK dropped)
+3000-3499    3000-3499   4000, SACK=3000-3500
+```
+
+示例二，网络延误
+
+下面的示例中，网络包（1000-1499）被网络给延误了，导致发送方没有收到ACK，而后面到达的三个包触发了“Fast Retransmit算法”，所以重传，但重传时，被延误的包又到了，所以，回了一个SACK=1000-1500，因为ACK已到了3000，所以，这个SACK是D-SACK——标识收到了重复的包。
+
+这个案例下，发送端知道之前因为“Fast Retransmit算法”触发的重传不是因为发出去的包丢了，也不是因为回应的ACK包丢了，而是因为网络延时了。
+
+```
+Transmitted    Received    ACK Sent
+Segment        Segment     (Including SACK Blocks)
+ 
+500-999        500-999     1000
+1000-1499      (delayed)
+1500-1999      1500-1999   1000, SACK=1500-2000
+2000-2499      2000-2499   1000, SACK=1500-2500
+2500-2999      2500-2999   1000, SACK=1500-3000
+1000-1499      1000-1499   3000
+               1000-1499   3000, SACK=1000-1500
+                                      ---------
+```
+
+可见，引入了D-SACK，有这么几个好处：
+
+1）可以让发送方知道，是发出去的包丢了，还是回来的ACK包丢了。
+
+2）是不是自己的timeout太小了，导致重传。
+
+3）网络上出现了先发的包后到的情况（又称reordering）
+
+4）网络上是不是把我的数据包给复制了。
