@@ -19,4 +19,4 @@ ActList* ReverseList2(ActList* head)
     head=p; // 最后q必然指向NULL，所以返回了p作为新的头指针  
     return head;      
 }  
-``` c++
+```
