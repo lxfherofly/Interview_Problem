@@ -15,8 +15,9 @@ int* compute_prefix(char pattern[])
     int k = 0;
     for (int i = 1; i < n; i++)
     {
+        k = pre[i-1];
         while (k > 0 && pattern[k] != pattern[i])
-            k = pre[k];
+            k = pre[k-1];
         if (pattern[k] == pattern[i])
             k++;
         pre[i] = k;
